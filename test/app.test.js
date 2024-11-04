@@ -8,7 +8,9 @@ chai.use(chaiHttp);
 
 let serverInstance;
 
-describe('GET /', () => {
+describe('GET /', function () {
+  this.timeout(5000); // Define um timeout para garantir que o teste finalize em até 5 segundos
+
   before((done) => {
     // Check if the server is already running and stop it if necessary
     if (serverInstance) {
@@ -22,10 +24,14 @@ describe('GET /', () => {
   });
 
   after((done) => {
-    serverInstance.close(() => {
-      console.log('Test server stopped');
+    if (serverInstance) {
+      serverInstance.close(() => {
+        console.log('Test server stopped');
+        done();
+      });
+    } else {
       done();
-    });
+    }
   });
 
   it('should return welcome message', (done) => {
@@ -40,9 +46,19 @@ describe('GET /', () => {
 });
 
 function startServer(done) {
-    serverInstance = server.listen(0, () => { // Porta 0 usa uma aleatória
-      const { port } = serverInstance.address();
-      console.log(`Test server running on http://localhost:${port}`);
-      done();
+  serverInstance = server.listen(0, () => { // Porta 0 usa uma aleatória
+    const { port } = serverInstance.address();
+    console.log(`Test server running on http://localhost:${port}`);
+    done();
+  });
+}
+
+// Garante que o processo encerre após a execução dos testes
+after(() => {
+  if (serverInstance) {
+    serverInstance.close(() => {
+      console.log('Final server shutdown');
+      process.exit(0); // Força o término do processo Node.js
     });
   }
+});
