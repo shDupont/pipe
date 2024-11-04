@@ -10,10 +10,15 @@ let serverInstance;
 
 describe('GET /', () => {
   before((done) => {
-    serverInstance = server.listen(3000, () => {
-      console.log('Test server running on http://localhost:3000');
-      done();
-    });
+    // Check if the server is already running and stop it if necessary
+    if (serverInstance) {
+      serverInstance.close(() => {
+        console.log('Previous test server stopped');
+        startServer(done);
+      });
+    } else {
+      startServer(done);
+    }
   });
 
   after((done) => {
@@ -33,3 +38,10 @@ describe('GET /', () => {
       });
   });
 });
+
+function startServer(done) {
+  serverInstance = server.listen(3000, () => {
+    console.log('Test server running on http://localhost:3000');
+    done();
+  });
+}
