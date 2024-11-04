@@ -40,8 +40,9 @@ describe('GET /', () => {
 });
 
 function startServer(done) {
-  serverInstance = server.listen(3000, () => {
-    console.log('Test server running on http://localhost:3000');
-    done();
-  });
-}
+    serverInstance = server.listen(0, () => { // Porta 0 usa uma aleatória
+      const { port } = serverInstance.address();
+      console.log(`Test server running on http://localhost:${port}`);
+      done();
+    });
+  }
